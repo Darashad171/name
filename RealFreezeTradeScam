@@ -1,0 +1,249 @@
+--// Services
+
+local Players = game:GetService("Players")
+
+local UserInputService = game:GetService("UserInputService")
+
+local LocalPlayer = Players.LocalPlayer
+
+--// GUI Setup
+
+local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+
+ScreenGui.Name = "TradeOptionsUI"
+
+local Frame = Instance.new("Frame", ScreenGui)
+
+Frame.Position = UDim2.new(0.35, 0, 0.3, 0)
+
+Frame.Size = UDim2.new(0, 250, 0, 160)
+
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+
+Frame.BorderSizePixel = 0
+
+Frame.Active = true
+
+local UICorner = Instance.new("UICorner", Frame)
+
+UICorner.CornerRadius = UDim.new(0, 8)
+
+-- Custom Drag Functionality
+
+local dragging = false
+
+local dragInput, dragStart, startPos
+
+local function update(input)
+
+	if not dragging then return end
+
+	local delta = input.Position - dragStart
+
+	Frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+
+		startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+
+end
+
+Frame.InputBegan:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragging = true
+
+		dragStart = input.Position
+
+		startPos = Frame.Position
+
+		input.Changed:Connect(function()
+
+			if input.UserInputState == Enum.UserInputState.End then
+
+				dragging = false
+
+			end
+
+		end)
+
+	end
+
+end)
+
+Frame.InputChanged:Connect(function(input)
+
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+
+		dragInput = input
+
+	end
+
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+
+	if input == dragInput then
+
+		update(input)
+
+	end
+
+end)
+
+--// Title Bar
+
+local Title = Instance.new("TextLabel", Frame)
+
+Title.Size = UDim2.new(1, 0, 0, 30)
+
+Title.BackgroundTransparency = 1
+
+Title.Text = "Trade Options"
+
+Title.Font = Enum.Font.GothamBold
+
+Title.TextSize = 18
+
+Title.TextColor3 = Color3.new(0, 0, 0)
+
+--// Create Button Function
+
+local function createButton(text, position, color)
+
+	local btn = Instance.new("TextButton", Frame)
+
+	btn.Size = UDim2.new(1, -20, 0, 35)
+
+	btn.Position = position
+
+	btn.Text = text
+
+	btn.Font = Enum.Font.GothamSemibold
+
+	btn.TextSize = 14
+
+	btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+	btn.BackgroundColor3 = color
+
+	btn.BorderSizePixel = 0
+
+	local corner = Instance.new("UICorner", btn)
+
+	corner.CornerRadius = UDim.new(0, 6)
+
+	return btn
+
+end
+
+--// Buttons
+
+local freezeBtn = createButton("Freeze Trade", UDim2.new(0, 10, 0, 35), Color3.fromRGB(50, 255, 100))
+
+local autoAcceptBtn = createButton("Auto Accept", UDim2.new(0, 10, 0, 75), Color3.fromRGB(150, 150, 150))
+
+local autoAddBtn = createButton("Auto Add Items", UDim2.new(0, 10, 0, 115), Color3.fromRGB(150, 150, 150))
+
+--// Logic
+
+local tradeFrozen = false
+
+freezeBtn.MouseButton1Click:Connect(function()
+
+	tradeFrozen = not tradeFrozen
+
+	if tradeFrozen then
+
+		freezeBtn.Text = "Unfreeze Trade"
+
+		freezeBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+
+		local tradeUI = LocalPlayer.PlayerGui:FindFirstChild("Trade", true)
+
+		if tradeUI then
+
+			tradeUI:Destroy()
+
+			warn("[Trade UI]: Frozen (Destroyed)")
+
+		end
+
+	else
+
+		freezeBtn.Text = "Freeze Trade"
+
+		freezeBtn.BackgroundColor3 = Color3.fromRGB(50, 255, 100)
+
+	end
+
+end)
+
+local autoAccept = false
+
+autoAcceptBtn.MouseButton1Click:Connect(function()
+
+	autoAccept = not autoAccept
+
+	autoAcceptBtn.BackgroundColor3 = autoAccept and Color3.fromRGB(100, 200, 255) or Color3.fromRGB(150, 150, 150)
+
+	if autoAccept then
+
+		spawn(function()
+
+			while autoAccept do
+
+				local acceptBtn = LocalPlayer.PlayerGui:FindFirstChild("Trade", true)
+
+				if acceptBtn then
+
+					local button = acceptBtn:FindFirstChild("AcceptButton", true)
+
+					if button then
+
+						fireclickdetector(button)
+
+					end
+
+				end
+
+				wait(1)
+
+			end
+
+		end)
+
+	end
+
+end)
+
+autoAddBtn.MouseButton1Click:Connect(function()
+
+	local remotes = game:GetService("ReplicatedStorage"):FindFirstChild("Remotes")
+
+	if remotes and remotes:FindFirstChild("AddItemToTrade") then
+
+		for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+
+			remotes.AddItemToTrade:FireServer(item.Name)
+
+			wait(0.25)
+
+		end
+
+	else
+
+		warn("❌ Game doesn't support auto item adding.")
+
+	end
+
+end)
+
+--// Kick if Not Blox Fruits
+
+local placeId = game.PlaceId
+
+if placeId ~= 2753915549 and placeId ~= 4442272183 and placeId ~= 7449423635 then
+
+	LocalPlayer:Kick("This script ONLY works in Blox Fruits. You have been kicked.")
+
+end
