@@ -92,14 +92,15 @@ end)
 -- 🔹 Stage 2: MAIN TRADE UI
 -------------------------------------------------------
 function spawnMainUI()
-	-- 🔹 Background (pakai texture ID asli hasil copy)
-	local bgImage = Instance.new("ImageLabel")
-	bgImage.Size = UDim2.new(1, 0, 1, 0)
-	bgImage.Position = UDim2.new(0, 0, 0, 0)
-	bgImage.BackgroundTransparency = 1
-	bgImage.Image = "rbxassetid://89490938149653" -- GANTI pake texture id asli
-	bgImage.ZIndex = 0
-	bgImage.Parent = screenGui
+	-- 🔹 Background decal (wallpaper)
+local bgImage = Instance.new("ImageLabel")
+bgImage.Size = UDim2.new(0.6, 0, 0.6, 0) -- lebih kecil (60% layar)
+bgImage.Position = UDim2.new(0.2, 0, 0.2, 0) -- center pas
+bgImage.BackgroundTransparency = 1
+bgImage.Image = "rbxassetid://89490938149653" -- ID yg lu kasih
+bgImage.ScaleType = Enum.ScaleType.Fit -- biar ga ketarik/gepeng
+bgImage.ZIndex = 0
+bgImage.Parent = screenGui
 
 	-- 🔹 Frame utama
 	local mainFrame = Instance.new("Frame")
