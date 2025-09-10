@@ -1,0 +1,313 @@
+--== Services ==--
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local SoundService = game:GetService("SoundService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+--== ScreenGui utama ==--
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SeongJiYuk_UI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-------------------------------------------------------
+-- 🔹 Stage 1: INTRO
+-------------------------------------------------------
+local introFrame = Instance.new("Frame")
+introFrame.Size = UDim2.new(1,0,1,0)
+introFrame.BackgroundTransparency = 1
+introFrame.Parent = screenGui
+introFrame.ZIndex = 5
+
+local introLabel = Instance.new("TextLabel")
+introLabel.Size = UDim2.new(1,0,0,50)
+introLabel.Position = UDim2.new(0.5,-250,0.5,-25)
+introLabel.BackgroundTransparency = 1
+introLabel.TextColor3 = Color3.fromRGB(255,50,50)
+introLabel.Font = Enum.Font.Code
+introLabel.TextSize = 20
+introLabel.TextXAlignment = Enum.TextXAlignment.Left
+introLabel.Text = ""
+introLabel.ZIndex = 6
+introLabel.Parent = introFrame
+
+-- 🔊 Sound: robot voice
+local introSound = Instance.new("Sound")
+introSound.SoundId = "rbxassetid://9120251676" -- contoh suara robot
+introSound.Volume = 3
+introSound.Parent = SoundService
+
+-- 🔊 Sound typing (keyboard effect)
+local typeSound = Instance.new("Sound")
+typeSound.SoundId = "rbxassetid://9118823105"
+typeSound.Volume = 1.5
+typeSound.Parent = SoundService
+
+--== Animasi typing ==--
+local function typeText(text, delayPerChar)
+	introLabel.Text = ""
+	for i = 1, #text do
+		introLabel.Text = string.sub(text, 1, i)
+		typeSound:Play()
+		task.wait(delayPerChar)
+	end
+end
+
+--== Intro sequence ==--
+task.spawn(function()
+	-- Text 1
+	typeText("Bot Helper Is loading...",0.05)
+	task.wait(3)
+
+	-- Text 2
+	typeText("[Bot] : Hello My Dear Seong Ji Yuk!",0.05)
+	task.wait(2)
+
+	-- Text 3
+	typeText("[Bot] : This is Darakz Hub bot. I can Set You A Script For You, SeongJi Yuk",0.05)
+	task.wait(2)
+
+	-- Text 4
+	typeText("[Bot] : Hopefully You Like This script. Enjoy!",0.05)
+	task.wait(3)
+
+	-- Play robot voice pas intro selesai
+	introSound:Play()
+
+	-- Fade out intro
+	TweenService:Create(introFrame, TweenInfo.new(1), {BackgroundTransparency=1}):Play()
+	TweenService:Create(introLabel, TweenInfo.new(1), {TextTransparency=1}):Play()
+
+	task.wait(2)
+	introFrame:Destroy()
+
+	-- Spawn Main UI sesudah intro
+	spawnMainUI()
+end)
+
+-------------------------------------------------------
+-- 🔹 Stage 2: MAIN TRADE UI
+-------------------------------------------------------
+function spawnMainUI()
+	-- 🔹 Background (pakai texture ID asli hasil copy)
+	local bgImage = Instance.new("ImageLabel")
+	bgImage.Size = UDim2.new(1, 0, 1, 0)
+	bgImage.Position = UDim2.new(0, 0, 0, 0)
+	bgImage.BackgroundTransparency = 1
+	bgImage.Image = "rbxassetid://89490938149653" -- GANTI pake texture id asli
+	bgImage.ZIndex = 0
+	bgImage.Parent = screenGui
+
+	-- 🔹 Frame utama
+	local mainFrame = Instance.new("Frame")
+	mainFrame.Size = UDim2.new(0, 260, 0, 200)
+	mainFrame.Position = UDim2.new(0.5, -130, 0.5, -100)
+	mainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+	mainFrame.BackgroundTransparency = 0.5
+	mainFrame.BorderSizePixel = 0
+	mainFrame.Active = true
+	mainFrame.Draggable = true
+	mainFrame.ZIndex = 2
+	mainFrame.Parent = screenGui
+	Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 12)
+
+	-- Outline
+	local stroke = Instance.new("UIStroke")
+	stroke.Thickness = 2
+	stroke.Color = Color3.fromRGB(255, 255, 255)
+	stroke.Transparency = 0.3
+	stroke.Parent = mainFrame
+
+	-- Title
+	local titleBar = Instance.new("TextLabel")
+	titleBar.Size = UDim2.new(1, 0, 0, 30)
+	titleBar.BackgroundColor3 = Color3.fromRGB(35, 35, 50)
+	titleBar.BackgroundTransparency = 0.3
+	titleBar.Text = " Seong Ji Yuk │ Scripts"
+	titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+	titleBar.Font = Enum.Font.GothamBold
+	titleBar.TextSize = 16
+	titleBar.ZIndex = 3
+	titleBar.Parent = mainFrame
+	Instance.new("UICorner", titleBar).CornerRadius = UDim.new(0, 12)
+
+	-- Premium logo
+	local premiumLogo = Instance.new("ImageLabel")
+	premiumLogo.Size = UDim2.new(0,20,0,20)
+	premiumLogo.Position = UDim2.new(1,-25,0,5)
+	premiumLogo.BackgroundTransparency = 1
+	premiumLogo.Image = "rbxassetid://11293942957" -- contoh bintang premium
+	premiumLogo.ZIndex = 4
+	premiumLogo.Parent = titleBar
+
+	-- Status label
+	local statusLabel = Instance.new("TextLabel")
+	statusLabel.Size = UDim2.new(1,-20,0,25)
+	statusLabel.Position = UDim2.new(0,10,0,40)
+	statusLabel.BackgroundTransparency = 1
+	statusLabel.Text = "Not in trade"
+	statusLabel.TextColor3 = Color3.fromRGB(200,200,200)
+	statusLabel.Font = Enum.Font.Gotham
+	statusLabel.TextSize = 14
+	statusLabel.TextXAlignment = Enum.TextXAlignment.Left
+	statusLabel.ZIndex = 3
+	statusLabel.Parent = mainFrame
+
+	-- Warning label
+	local warningLabel = Instance.new("TextLabel")
+	warningLabel.Size = UDim2.new(1,-20,0,25)
+	warningLabel.Position = UDim2.new(0,10,1,-30)
+	warningLabel.BackgroundTransparency = 1
+	warningLabel.Text = ""
+	warningLabel.TextColor3 = Color3.fromRGB(255,80,80)
+	warningLabel.Font = Enum.Font.GothamBold
+	warningLabel.TextSize = 14
+	warningLabel.Visible = false
+	warningLabel.ZIndex = 3
+	warningLabel.Parent = mainFrame
+
+	local function showWarning(msg)
+		warningLabel.Text = msg
+		warningLabel.Visible = true
+		warningLabel.TextTransparency = 0
+		task.spawn(function()
+			task.wait(2)
+			TweenService:Create(warningLabel,TweenInfo.new(0.5),{TextTransparency=1}):Play()
+			task.wait(0.5)
+			warningLabel.Visible = false
+		end)
+	end
+
+	-- Toggle container
+	local toggleFrame = Instance.new("Frame")
+	toggleFrame.Size = UDim2.new(1,-20,1,-80)
+	toggleFrame.Position = UDim2.new(0,10,0,70)
+	toggleFrame.BackgroundTransparency = 1
+	toggleFrame.ZIndex = 3
+	toggleFrame.Parent = mainFrame
+
+	local uiList = Instance.new("UIListLayout",toggleFrame)
+	uiList.Padding = UDim.new(0,8)
+
+	-- 🔊 Klik sound
+	local clickSound = Instance.new("Sound")
+	clickSound.SoundId = "rbxassetid://9118823105"
+	clickSound.Volume = 1.5
+	clickSound.Parent = SoundService
+
+	-- Toggles
+	local toggles = {
+		"Freeze Trade: ",
+		"Auto Accept: ",
+		"Auto Add Item: "
+	}
+	local toggleStates = {}
+
+	local function createToggle(name)
+		local holder = Instance.new("Frame")
+		holder.Size = UDim2.new(1,0,0,28)
+		holder.BackgroundTransparency = 1
+		holder.ZIndex = 3
+		holder.Parent = toggleFrame
+
+		local label = Instance.new("TextLabel")
+		label.Size = UDim2.new(1,-50,1,0)
+		label.BackgroundTransparency = 1
+		label.Text = name
+		label.TextColor3 = Color3.fromRGB(220,220,220)
+		label.Font = Enum.Font.Gotham
+		label.TextSize = 14
+		label.TextXAlignment = Enum.TextXAlignment.Left
+		label.ZIndex = 3
+		label.Parent = holder
+
+		local button = Instance.new("TextButton")
+		button.Size = UDim2.new(0,45,1,-4)
+		button.Position = UDim2.new(1,-45,0,2)
+		button.BackgroundColor3 = Color3.fromRGB(70,70,90)
+		button.Text = "OFF"
+		button.TextColor3 = Color3.fromRGB(255,100,100)
+		button.Font = Enum.Font.GothamBold
+		button.TextSize = 12
+		button.ZIndex = 3
+		button.Parent = holder
+		Instance.new("UICorner", button).CornerRadius = UDim.new(0,8)
+
+		toggleStates[name] = false
+
+		button.MouseButton1Click:Connect(function()
+			local inTrade, victim = checkTradeStatus()
+			if not inTrade then
+				showWarning("You need to be in trade!")
+				return
+			end
+
+			toggleStates[name] = not toggleStates[name]
+			clickSound:Play()
+			if toggleStates[name] then
+				button.Text = "ON"
+				button.TextColor3 = Color3.fromRGB(100,255,100)
+				button.BackgroundColor3 = Color3.fromRGB(90,120,90)
+			else
+				button.Text = "OFF"
+				button.TextColor3 = Color3.fromRGB(255,100,100)
+				button.BackgroundColor3 = Color3.fromRGB(70,70,90)
+			end
+		end)
+	end
+
+	for _, name in ipairs(toggles) do
+		createToggle(name)
+	end
+
+	-- Trade checker
+	function checkTradeStatus()
+		local playerGui = player.PlayerGui
+		local mainGui = playerGui:FindFirstChild("Main")
+		if not mainGui then return false, "" end
+
+		local tradeFrame = mainGui:FindFirstChild("Trade")
+		if not tradeFrame or not tradeFrame.Visible then return false, "" end
+
+		local container = tradeFrame:FindFirstChild("Container")
+		if not container then return false, "" end
+
+		local frame1 = container:FindFirstChild("1")
+		local frame2 = container:FindFirstChild("2")
+		if not frame1 or not frame2 then return false, "" end
+
+		local player1Label = frame1:FindFirstChild("TextLabel")
+		local player2Label = frame2:FindFirstChild("TextLabel")
+		if not player1Label or not player2Label then return false, "" end
+
+		local localPlayerName = string.lower(player.Name)
+		local localPlayerDisplay = string.lower(player.DisplayName)
+		local player1Name = string.lower(player1Label.Text)
+		local player2Name = string.lower(player2Label.Text)
+
+		local tradingPartnerName
+		if player1Name == localPlayerName or player1Name == localPlayerDisplay then
+			tradingPartnerName = player2Label.Text
+		elseif player2Name == localPlayerName or player2Name == localPlayerDisplay then
+			tradingPartnerName = player1Label.Text
+		else
+			return false, ""
+		end
+		return true, tradingPartnerName
+	end
+
+	-- Status updater
+	RunService.Heartbeat:Connect(function()
+		local inTrade, victim = checkTradeStatus()
+		if inTrade then
+			statusLabel.Text = "Victim: " .. victim
+			statusLabel.TextColor3 = Color3.fromRGB(100,255,100)
+		else
+			statusLabel.Text = "Status: Not in trade"
+			statusLabel.TextColor3 = Color3.fromRGB(200,200,200)
+		end
+	end)
+end
